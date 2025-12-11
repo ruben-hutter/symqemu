@@ -43,3 +43,7 @@
 [submodule "tests/lcitool/libvirt-ci"]
 	path = tests/lcitool/libvirt-ci
 	url = https://gitlab.com/libvirt/libvirt-ci.git
+[submodule "subprojects/symcc-rt"]
+	path = subprojects/symcc-rt
+	url = https://github.com/ruben-hutter/symcc-rt.git
+	branch = main
