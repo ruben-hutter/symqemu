@@ -31,4 +31,19 @@ target_include_directories(SymCCRtObj PRIVATE
 
 set_target_properties(SymCCRtObj PROPERTIES COMPILE_FLAGS "-Werror")
 
+# Link with LibAFL's Rust runtime which provides the _rsym_* functions
+# The rust_backend is just a C++ wrapper, the actual implementation is in Rust
+# User must provide LIBAFL_RUNTIME_DIR pointing to the directory containing libSymRuntime.so
+if(DEFINED ENV{LIBAFL_RUNTIME_DIR})
+  message(STATUS "Linking rust_backend with LibAFL runtime from: $ENV{LIBAFL_RUNTIME_DIR}")
+  find_library(LIBAFL_SYMRUNTIME NAMES SymRuntime HINTS $ENV{LIBAFL_RUNTIME_DIR} REQUIRED)
+  message(STATUS "Found LibAFL runtime: ${LIBAFL_SYMRUNTIME}")
+  target_link_libraries(SymCCRtShared ${LIBAFL_SYMRUNTIME})
+  # Note: SymCCRtStatic cannot link with the dynamic Rust runtime
+  # It's provided for compatibility but won't work without manual linking
+else()
+  message(WARNING "LIBAFL_RUNTIME_DIR not set. You must build LibAFL's runtime and set this env var.")
+  message(WARNING "Example: export LIBAFL_RUNTIME_DIR=/path/to/fuzzer/../runtime")
+endif()
+
 INSTALL(TARGETS SymCCRtShared SymCCRtStatic)
