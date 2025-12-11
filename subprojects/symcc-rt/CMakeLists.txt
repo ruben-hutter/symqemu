@@ -26,6 +26,19 @@ option(QSYM_BACKEND "Use the Qsym backend instead of our own" OFF)
 option(RUST_BACKEND "Build the support code required for a Rust backend as a static archive." OFF)
 option(Z3_TRUST_SYSTEM_VERSION "Use the system-provided Z3 without a version check" OFF)
 
+# SymQEMU compatibility: handle SYMCC_RT_BACKEND string variable
+# SymQEMU passes backend as a string (e.g., "rust", "qsym", "simple")
+# Convert it to the boolean flags that AFL++ runtime expects
+if(DEFINED SYMCC_RT_BACKEND)
+  message(STATUS "SymQEMU backend selection: ${SYMCC_RT_BACKEND}")
+  if(SYMCC_RT_BACKEND STREQUAL "rust")
+    set(RUST_BACKEND ON CACHE BOOL "Using rust backend from SymQEMU" FORCE)
+    message(STATUS "Enabling RUST_BACKEND for LibAFL integration")
+  elseif(SYMCC_RT_BACKEND STREQUAL "qsym")
+    set(QSYM_BACKEND ON CACHE BOOL "Using qsym backend from SymQEMU" FORCE)
+  endif()
+endif()
+
 # Place the final product in the top-level output directory
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
