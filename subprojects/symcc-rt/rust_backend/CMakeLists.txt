@@ -39,7 +39,13 @@ if(DEFINED ENV{LIBAFL_RUNTIME_DIR})
   set(LIBAFL_SYMRUNTIME_PATH "$ENV{LIBAFL_RUNTIME_DIR}/libSymRuntime.so")
   if(EXISTS "${LIBAFL_SYMRUNTIME_PATH}")
     message(STATUS "Found LibAFL runtime: ${LIBAFL_SYMRUNTIME_PATH}")
-    target_link_libraries(SymCCRtShared "${LIBAFL_SYMRUNTIME_PATH}")
+    # Use link options instead of target_link_libraries to pass the full .so path
+    # This prevents Meson from trying to add -lSymRuntime
+    target_link_options(SymCCRtShared PRIVATE "${LIBAFL_SYMRUNTIME_PATH}")
+    # Also need to set RPATH so the library can be found at runtime
+    set_target_properties(SymCCRtShared PROPERTIES 
+      BUILD_RPATH "$ENV{LIBAFL_RUNTIME_DIR}"
+      INSTALL_RPATH "$ENV{LIBAFL_RUNTIME_DIR}")
   else()
     message(FATAL_ERROR "LibAFL runtime not found at: ${LIBAFL_SYMRUNTIME_PATH}")
   endif()
