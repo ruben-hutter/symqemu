@@ -1325,6 +1325,12 @@ else
   symcc_rt = symcc_rt_proj.dependency('SymCCRtStatic')
 endif
 
+# With rust_backend, the _rsym_* symbols are provided by LibAFL at final
+# link time (not during the QEMU build). Allow them to remain unresolved.
+if symcc_rt_backend == 'rust'
+  add_project_link_arguments('-Wl,--unresolved-symbols=ignore-in-object-files', language: ['c', 'cpp'])
+endif
+
 mpathlibs = [libudev]
 mpathpersist = not_found
 if host_os == 'linux' and have_tools and get_option('mpath').allowed()
